@@ -8,9 +8,11 @@ namespace blazor_todo.Shared.Model
 {
 	public class KanbanTaskItem
 	{
-		public string Name { get; init; }
-		public string Status { get; set; }
+		public int Id { get; set; }	
+		public string? Name { get; set; }
+		public string? Status { get; set; }
 
+		public KanbanTaskItem() { }
 		public KanbanTaskItem(string name, string status)
 		{
 			Name = name;

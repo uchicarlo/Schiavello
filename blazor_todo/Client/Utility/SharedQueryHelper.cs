@@ -9,8 +9,8 @@ namespace blazor_todo.Client.Utility
 	public static class SharedQueryHelper
 	{
 		private static JsonSerializerSettings _jsonSerializerSettings = new() { DateTimeZoneHandling = DateTimeZoneHandling.Utc };
-		public static async Task<(TResponseType?, GraphQLError[]?)> HistoricalSelect<TResponseType>(this HttpClient http,string query, string? operationName = "",
-			object? parameters = null, CancellationToken cancellationToken = default!)
+		public static async Task<(TResponseType?, GraphQLError[]?)> Query<TResponseType>(this HttpClient http,string query,
+			object? parameters = null, string? operationName = "", CancellationToken cancellationToken = default!)
 		{
 			try
 			{

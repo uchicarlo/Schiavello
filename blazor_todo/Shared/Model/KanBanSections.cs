@@ -9,10 +9,11 @@ namespace blazor_todo.Shared.Model
 	public class KanBanSection
 	{
 		public int Id { get; set; }
-		public string Name { get; init; }
+		public string? Name { get; set; }
 		public bool NewTaskOpen { get; set; }
-		public string NewTaskName { get; set; }
+		public string? NewTaskName { get; set; }
 
+		public KanBanSection() { }
 		public KanBanSection(string name, bool newTaskOpen, string newTaskName)
 		{
 			Name = name;
@@ -20,4 +21,6 @@ namespace blazor_todo.Shared.Model
 			NewTaskName = newTaskName;
 		}
 	}
+
+	public record KanbanRecords(List<KanBanSection> kanbanSections, List<KanbanTaskItem> kanbanTaskItems);
 }

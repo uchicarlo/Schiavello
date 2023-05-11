@@ -19,36 +19,46 @@ namespace blazor_todo.Client.Pages
 		private List<KanbanTaskItem> _tasks = new();
 		KanBanNewForm newSectionModel = new KanBanNewForm();
 		/* handling board events */
+
+		protected override async Task OnInitializedAsync()
+		{
+			var response = await _todoServices.GetKanban();
+			if (response == null) return;
+			_sections = response.kanbanSections;
+			_tasks = response.kanbanTaskItems;
+		}
+
+
 		private async Task TaskUpdated(MudItemDropInfo<KanbanTaskItem> info)
 		{
-			_tasks.RemoveAll(x => x.Status == info.DropzoneIdentifier);
 			info.Item.Status = info.DropzoneIdentifier;
 			var response = await _todoServices.UpdateTask(info.Item);
-			_tasks.AddRange(response);
-			await InvokeAsync(StateHasChanged);
+			_tasks = response;
+			StateHasChanged();
 		}
 
 		private async Task AddTask(KanBanSection section)
 		{
 			_tasks.RemoveAll(x => x.Status == section.Name);
 			var response = await _todoServices.AddTask(new KanbanTaskItem(section.NewTaskName, section.Name));
-			_tasks.AddRange(response);
+			_tasks = response;
 			section.NewTaskName = string.Empty;
 			section.NewTaskOpen = false;
 			_dropContainer.Refresh();
+			StateHasChanged();
 		}
 		private async Task UpdateTask(KanbanTaskItem item)
 		{
 			_tasks.RemoveAll(x => x.Status == item.Status);
 			var response = await _todoServices.UpdateTask(item);
-			_tasks.AddRange(response);
+			_tasks = response;
 			_dropContainer.Refresh();
 		}
 		private async Task DeleteTask(KanbanTaskItem item)
 		{
 			_tasks.RemoveAll(x => x.Status == item.Status);
 			var response = await _todoServices.DeleteTask(item);
-			_tasks.AddRange(response);
+			_tasks = response;
 			_dropContainer.Refresh();
 		}
 		
@@ -60,7 +70,7 @@ namespace blazor_todo.Client.Pages
 			_tasks = response.kanbanTaskItems;
 			newSectionModel.Name = string.Empty;
 			_addSectionOpen = false;
-			await InvokeAsync(StateHasChanged);
+			StateHasChanged();
 		}
 
 		private void OpenAddNewSection()
@@ -72,7 +82,7 @@ namespace blazor_todo.Client.Pages
 			var response = await _todoServices.DeleteSection(section); 
 			_tasks = response.kanbanTaskItems;
 			_sections = response.kanbanSections;
-			await InvokeAsync(StateHasChanged);
+			StateHasChanged();
 		}
 	}
 }

@@ -11,6 +11,7 @@ namespace blazor_todo.Shared
 	{
 		public List<KanBanSection> kanbanSections { get; set; } = new();
 		public List<KanbanTaskItem> kanbanTaskItems { get; set; } = new();
+		public KanbanRecords kanbanRecords { get; set; } = new(new(),new());
 
 	}
 }
