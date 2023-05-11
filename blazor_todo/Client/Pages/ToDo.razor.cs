@@ -1,86 +1,78 @@
-﻿using blazor_todo.Shared.Model;
+﻿using blazor_todo.Client.Services;
+using blazor_todo.Shared.Model;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
 using System.ComponentModel.DataAnnotations;
+using static System.Collections.Specialized.BitVector32;
 
 namespace blazor_todo.Client.Pages
 {
 	public partial class ToDo
 	{
+		[Inject] ITodoServices _todoServices { get; set; }
 		private MudDropContainer<KanbanTaskItem> _dropContainer;
 
 		private bool _addSectionOpen;
+		/* Setup for board  */
+		private List<KanBanSection> _sections = new();
+		private List<KanbanTaskItem> _tasks = new();
+		KanBanNewForm newSectionModel = new KanBanNewForm();
 		/* handling board events */
-		private void TaskUpdated(MudItemDropInfo<KanbanTaskItem> info)
+		private async Task TaskUpdated(MudItemDropInfo<KanbanTaskItem> info)
 		{
+			_tasks.RemoveAll(x => x.Status == info.DropzoneIdentifier);
 			info.Item.Status = info.DropzoneIdentifier;
+			var response = await _todoServices.UpdateTask(info.Item);
+			_tasks.AddRange(response);
+			await InvokeAsync(StateHasChanged);
 		}
 
-		/* Setup for board  */
-		private List<KanBanSection> _sections = new()
+		private async Task AddTask(KanBanSection section)
 		{
-			new KanBanSection("To Do", false, String.Empty),
-			new KanBanSection("In Process", false, String.Empty),
-			new KanBanSection("Done", false, String.Empty),
-		};
-
-
-	
-
-		private List<KanbanTaskItem> _tasks = new()
+			_tasks.RemoveAll(x => x.Status == section.Name);
+			var response = await _todoServices.AddTask(new KanbanTaskItem(section.NewTaskName, section.Name));
+			_tasks.AddRange(response);
+			section.NewTaskName = string.Empty;
+			section.NewTaskOpen = false;
+			_dropContainer.Refresh();
+		}
+		private async Task UpdateTask(KanbanTaskItem item)
 		{
-			new KanbanTaskItem("Write unit test", "To Do"),
-			new KanbanTaskItem("Some docu stuff", "To Do"),
-			new KanbanTaskItem("Walking the dog", "To Do"),
-		};
-
-		KanBanNewForm newSectionModel = new KanBanNewForm();
-
+			_tasks.RemoveAll(x => x.Status == item.Status);
+			var response = await _todoServices.UpdateTask(item);
+			_tasks.AddRange(response);
+			_dropContainer.Refresh();
+		}
+		private async Task DeleteTask(KanbanTaskItem item)
+		{
+			_tasks.RemoveAll(x => x.Status == item.Status);
+			var response = await _todoServices.DeleteTask(item);
+			_tasks.AddRange(response);
+			_dropContainer.Refresh();
+		}
 		
 
-		private void OnValidSectionSubmit(EditContext context)
+		private async Task OnValidSectionSubmit(EditContext context)
 		{
-			_sections.Add(new KanBanSection(newSectionModel.Name, false, String.Empty));
+			var response = await _todoServices.AddSection(new KanBanSection(newSectionModel.Name, false, String.Empty));
+			_sections = response.kanbanSections;
+			_tasks = response.kanbanTaskItems;
 			newSectionModel.Name = string.Empty;
 			_addSectionOpen = false;
+			await InvokeAsync(StateHasChanged);
 		}
 
 		private void OpenAddNewSection()
 		{
 			_addSectionOpen = true;
 		}
-
-		private void AddTask(KanBanSection section)
+		private async Task DeleteSection(KanBanSection section)
 		{
-			_tasks.Add(new KanbanTaskItem(section.NewTaskName, section.Name));
-			section.NewTaskName = string.Empty;
-			section.NewTaskOpen = false;
-			_dropContainer.Refresh();
-		}
-
-		private void DeleteSection(KanBanSection section)
-		{
-			if (_sections.Count == 1)
-			{
-				_tasks.Clear();
-				_sections.Clear();
-			}
-			else
-			{
-				int newIndex = _sections.IndexOf(section) - 1;
-				if (newIndex < 0)
-				{
-					newIndex = 0;
-				}
-
-				_sections.Remove(section);
-
-				var tasks = _tasks.Where(x => x.Status == section.Name);
-				foreach (var item in tasks)
-				{
-					item.Status = _sections[newIndex].Name;
-				}
-			}
+			var response = await _todoServices.DeleteSection(section); 
+			_tasks = response.kanbanTaskItems;
+			_sections = response.kanbanSections;
+			await InvokeAsync(StateHasChanged);
 		}
 	}
 }

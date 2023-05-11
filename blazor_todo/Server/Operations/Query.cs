@@ -5,10 +5,13 @@ namespace blazor_todo.Server.Operations
 {
 	public class Query
 	{
+		[GraphQLName("kanbanSections")]
 		[UseProjection]
 		[UseFiltering]
 		[UseSorting]
 		public IQueryable<KanBanSection> GetKanBanSections(ToDoContext context) => context.KanBanSections;
+
+		[GraphQLName("kanbanTaskItems")]
 		[UseProjection]
 		[UseFiltering]
 		[UseSorting]
