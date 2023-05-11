@@ -1,4 +1,7 @@
+using blazor_todo.Server.Context;
+using blazor_todo.Server.Operations;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +11,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
-
+builder.Services.AddDbContextFactory<ToDoContext>(options => options.UseSqlite("db/todo.db"));
+builder.Services.AddGraphQLServer().RegisterDbContext<ToDoContext>().AddProjections().AddFiltering().AddSorting()
+	.AddQueryType<Query>().AddMutationType<Mutation>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -31,6 +36,7 @@ app.UseRouting();
 
 app.MapRazorPages();
 app.MapControllers();
+app.MapGraphQL();
 app.MapFallbackToFile("index.html");
 
 app.Run();
