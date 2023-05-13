@@ -24,7 +24,7 @@ namespace blazor_todo.Server.Operations
 			};
 			return await _todoServices.UpdateTask(task);
 		}
-		public async Task<List<KanbanTaskItem>> DeleteTaskItem([Service] ToDoContext _toDoContext, int id)
+		public async Task<List<KanbanTaskItem>> DeleteTaskItem(int id)
 		{
 			var task = new KanbanTaskItem
 			{
@@ -37,7 +37,7 @@ namespace blazor_todo.Server.Operations
 			var section = new KanBanSection(name, false, string.Empty);
 			return await _todoServices.AddSection(section);
 		}
-		public async Task<KanbanRecords> RenameSections([Service] ToDoContext _toDoContext, int id,string name)
+		public async Task<KanbanRecords> RenameSections(int id,string name)
 		{
 			var section = new KanBanSection(name, false, string.Empty)
 			{
@@ -46,7 +46,7 @@ namespace blazor_todo.Server.Operations
 			return await _todoServices.UpdateSection(section);
 		}
 
-		public async Task<KanbanRecords> DeleteSections([Service] ToDoContext _toDoContext, int id)
+		public async Task<KanbanRecords> DeleteSections(int id)
 		{
 			var section = new KanBanSection()
 			{

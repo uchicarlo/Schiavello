@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
+using static MudBlazor.CategoryTypes;
 using static System.Collections.Specialized.BitVector32;
 
 namespace blazor_todo.Client.Pages
@@ -40,29 +42,47 @@ namespace blazor_todo.Client.Pages
 
 		private async Task AddTask(KanBanSection section)
 		{
-			_tasks.RemoveAll(x => x.Status == section.Name);
+			if (string.IsNullOrWhiteSpace(section.NewTaskName))
+			{
+                section.NewTaskName = string.Empty;
+                section.NewTaskOpen = false;
+                StateHasChanged();
+                _dropContainer.Refresh();
+				return;
+            }
 			var response = await _todoServices.AddTask(new KanbanTaskItem(section.NewTaskName, section.Name));
 			_tasks = response;
 			section.NewTaskName = string.Empty;
 			section.NewTaskOpen = false;
-			_dropContainer.Refresh();
 			StateHasChanged();
-		}
-		private async Task UpdateTask(KanbanTaskItem item)
-		{
-			_tasks.RemoveAll(x => x.Status == item.Status);
-			var response = await _todoServices.UpdateTask(item);
-			_tasks = response;
 			_dropContainer.Refresh();
 		}
 		private async Task DeleteTask(KanbanTaskItem item)
 		{
-			_tasks.RemoveAll(x => x.Status == item.Status);
 			var response = await _todoServices.DeleteTask(item);
 			_tasks = response;
+			StateHasChanged();
 			_dropContainer.Refresh();
 		}
-		
+		private async Task OnValidTaskSubmit(EditContext context)
+		{
+			var item = (KanbanTaskItem)context.Model;
+			var response = await _todoServices.UpdateTask(item);
+			_tasks = response;
+			newSectionModel.Name = string.Empty;
+			_addSectionOpen = false;
+			StateHasChanged();
+			_dropContainer.Refresh();
+		}
+		private async Task OnValidSectionEditSubmit(EditContext context)
+		{
+			var section = (KanBanSection)context.Model;
+            var response = await _todoServices.UpdateSection(section);
+            _sections = response.kanbanSections;
+            _tasks = response.kanbanTaskItems;
+            StateHasChanged();
+            _dropContainer.Refresh();
+        }
 
 		private async Task OnValidSectionSubmit(EditContext context)
 		{
@@ -73,6 +93,12 @@ namespace blazor_todo.Client.Pages
 			_addSectionOpen = false;
 			StateHasChanged();
 		}
+		private void EditTask(KanbanTaskItem item)
+		{
+			item.IsEditing = !item.IsEditing;
+			StateHasChanged();
+            _dropContainer.Refresh();
+        }
 
 		private void OpenAddNewSection()
 		{
@@ -83,6 +109,19 @@ namespace blazor_todo.Client.Pages
 			var response = await _todoServices.DeleteSection(section); 
 			_tasks = response.kanbanTaskItems;
 			_sections = response.kanbanSections;
+			StateHasChanged();
+            _dropContainer.Refresh();
+        }
+		private void EditSection(KanBanSection section)
+		{
+            section.IsEditing = !section.IsEditing;
+            StateHasChanged();
+        }
+
+		private void CancelAddingSection(KanBanSection section)
+		{
+			section.NewTaskName = string.Empty;
+			section.NewTaskOpen = false;
 			StateHasChanged();
 		}
 	}

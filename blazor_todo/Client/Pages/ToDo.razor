@@ -4,54 +4,107 @@
 @using blazor_todo.Shared.Model;
 
 <MudDropContainer T="KanbanTaskItem" @ref="_dropContainer" Items="@_tasks" ItemsSelector="@((item,column) => item.Status == column)" ItemDropped="TaskUpdated" Class="d-flex flex-row">
-	<ChildContent>
-		@foreach (var item in _sections)
-		{
-			<MudPaper Elevation="0" Width="224px" MinHeight="400px" Class="pa-4 ma-4 d-flex flex-column mud-background-gray rounded-lg">
-				<MudToolBar DisableGutters="true">
-					<MudText Typo="Typo.subtitle1"><b>@item.Name</b></MudText>
-					<MudSpacer />
-					<MudMenu Icon="@Icons.Material.Rounded.MoreHoriz" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" ListClass="pa-2 d-flex flex-column" PopoverClass="mud-elevation-25">
-						<MudButton Size="Size.Small" Color="Color.Error" StartIcon="@Icons.Material.Outlined.Delete" OnClick="@( () => DeleteSection(item))">Delete Section</MudButton>
-						<MudButton Size="Size.Small" Color="Color.Default" StartIcon="@Icons.Material.Rounded.Edit">Rename Section</MudButton>
-					</MudMenu>
-				</MudToolBar>
-				<MudDropZone T="KanbanTaskItem" Identifier="@item.Name" Class="mud-height-full" />
-				@if (item.NewTaskOpen)
-				{
-					<MudPaper Elevation="25" Class="pa-2 rounded-lg">
-						<MudTextField @bind-Value="item.NewTaskName" Placeholder="New Task" DisableUnderLine="true" Margin="Margin.Dense" Class="mx-2 mt-n2"></MudTextField>
-						<MudButton OnClick="@(() => AddTask(item))" Size="Size.Small" Color="Color.Primary" FullWidth="true">Add Task</MudButton>
-					</MudPaper>
-				}
-				else
-				{
-					<MudButton OnClick="@(() => item.NewTaskOpen = !item.NewTaskOpen)" StartIcon="@Icons.Material.Filled.Add" FullWidth="true" Class="rounded-lg py-2">Add Task</MudButton>
-				}
-			</MudPaper>
-		}
-		<MudPaper Class="pa-4" Elevation="0" Width="224px">
-			@if (_addSectionOpen)
-			{
-				<MudPaper Elevation="0" Width="224px" Class="pa-4 d-flex flex-column mud-background-gray rounded-lg">
-					<EditForm Model="@newSectionModel" OnValidSubmit="OnValidSectionSubmit">
-						<DataAnnotationsValidator />
-						<MudTextField @bind-Value="newSectionModel.Name" For="@(() => newSectionModel.Name)" Placeholder="New Section" DisableUnderLine="true"></MudTextField>
-						<MudButton ButtonType="ButtonType.Submit" Size="Size.Small" Color="Color.Primary" FullWidth="true">Add Section</MudButton>
-					</EditForm>
-				</MudPaper>
-			}
-			else
-			{
-				<MudButton OnClick="OpenAddNewSection" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary" Class="rounded-lg py-2" FullWidth="true">Add Section</MudButton>
-			}
-		</MudPaper>
-	</ChildContent>
-	<ItemRenderer>
-		<MudPaper Elevation="25" Class="pa-4 rounded-lg my-3">@context.Name</MudPaper>
-	</ItemRenderer>
+    <ChildContent>
+        @foreach (var item in _sections)
+        {
+            <MudPaper Elevation="0" Width="224px" MinHeight="400px" Class="pa-4 ma-4 d-flex flex-column mud-background-gray rounded-lg">
+                @if (item.IsEditing)
+                {
+                    <MudToolBar DisableGutters="true">
+                        <EditForm Model="item" OnValidSubmit="OnValidSectionEditSubmit">
+                            <MudTextField @bind-Value="item.Name" Placeholder="@item.Name" DisableUnderLine="true" Margin="Margin.Dense" Class="mx-2 mt-n2"></MudTextField>
+                            <MudButton ButtonType="ButtonType.Submit" Size="Size.Small" Color="Color.Primary" FullWidth="true">Edit Section</MudButton>
+                        </EditForm>
+                        <MudSpacer />
+                        <MudMenu Icon="@Icons.Material.Rounded.MoreHoriz" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" ListClass="pa-2 d-flex flex-column" PopoverClass="mud-elevation-25">
+                            <MudButton Size="Size.Small" Color="Color.Error" StartIcon="@Icons.Material.Outlined.Cancel" OnClick="@( () => EditSection(item))">Cancel</MudButton>
+                        </MudMenu>
+                    </MudToolBar>
+                }
+                else
+                {
+                    <MudToolBar DisableGutters="true">
+                        <MudText Typo="Typo.subtitle1"><b>@item.Name</b></MudText>
+                        <MudSpacer />
+                        <MudMenu Icon="@Icons.Material.Rounded.MoreHoriz" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" ListClass="pa-2 d-flex flex-column" PopoverClass="mud-elevation-25">
+                            <MudButton Size="Size.Small" Color="Color.Error" StartIcon="@Icons.Material.Outlined.Delete" OnClick="@( () => DeleteSection(item))">Delete Section</MudButton>
+                            <MudButton Size="Size.Small" Color="Color.Default" StartIcon="@Icons.Material.Rounded.Edit" OnClick="@( () => EditSection(item))">Rename Section</MudButton>
+                        </MudMenu>
+                    </MudToolBar>
+                }
+                <MudDropZone T="KanbanTaskItem" Identifier="@item.Name" Class="mud-height-full" />
+                @if (item.NewTaskOpen)
+                {
+                    <MudPaper Elevation="25" Class="pa-2 rounded-lg">
+                        <MudToolBar DisableGutters="true">
+                            <EditForm Model="item">
+                                <MudTextField @bind-Value="item.NewTaskName" Placeholder="New Task" DisableUnderLine="true" Margin="Margin.Dense" Class="mx-2 mt-n2"></MudTextField>
+                                <MudButton ButtonType="ButtonType.Submit" OnClick="@(async() =>await AddTask(item))" Size="Size.Small" Color="Color.Primary" FullWidth="true">Add Task</MudButton>
+                            </EditForm>
+                            <MudSpacer />
+                            <MudMenu Icon="@Icons.Material.Rounded.MoreHoriz" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" ListClass="pa-2 d-flex flex-column" PopoverClass="mud-elevation-25">
+                                <MudButton Size="Size.Small" Color="Color.Error" StartIcon="@Icons.Material.Outlined.Cancel" OnClick="@( () => CancelAddingSection(item))">Cancel</MudButton>
+                            </MudMenu>
+                        </MudToolBar>
+
+                    </MudPaper>
+                }
+                else
+                {
+                    <MudButton OnClick="@(() => item.NewTaskOpen = !item.NewTaskOpen)" StartIcon="@Icons.Material.Filled.Add" FullWidth="true" Class="rounded-lg py-2">Add Task</MudButton>
+                }
+            </MudPaper>
+        }
+        <MudPaper Class="pa-4" Elevation="0" Width="224px">
+            @if (_addSectionOpen)
+            {
+                <MudPaper Elevation="0" Width="224px" Class="pa-4 d-flex flex-column mud-background-gray rounded-lg">
+                    <EditForm Model="@newSectionModel" OnValidSubmit="OnValidSectionSubmit">
+                        <DataAnnotationsValidator />
+                        <MudTextField @bind-Value="newSectionModel.Name" For="@(() => newSectionModel.Name)" Placeholder="New Section" DisableUnderLine="true"></MudTextField>
+                        <MudButton ButtonType="ButtonType.Submit" Size="Size.Small" Color="Color.Primary" FullWidth="true">Add Section</MudButton>
+                    </EditForm>
+                </MudPaper>
+            }
+            else
+            {
+                <MudButton OnClick="OpenAddNewSection" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary" Class="rounded-lg py-2" FullWidth="true">Add Section</MudButton>
+            }
+        </MudPaper>
+    </ChildContent>
+    <ItemRenderer>
+        @*<MudPaper Elevation="25" Class="pa-4 rounded-lg my-3">@context.Name</MudPaper>*@
+        <MudPaper Elevation="25" Class="pa-4 rounded-lg my-3">
+            @if (context.IsEditing)
+            {
+                <MudToolBar DisableGutters="true">
+                    <EditForm Model="context" OnValidSubmit="OnValidTaskSubmit" Context="task">
+                        <DataAnnotationsValidator />
+                        <MudTextField @bind-Value="context.Name" For="@(() => context.Name)" Placeholder="Task Name" DisableUnderLine="true"></MudTextField>
+                        <MudButton ButtonType="ButtonType.Submit" Size="Size.Small" Color="Color.Primary" FullWidth="true">Edit Task</MudButton>
+                    </EditForm>
+                    <MudSpacer />
+                    <MudMenu Icon="@Icons.Material.Rounded.MoreHoriz" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" ListClass="pa-2 d-flex flex-column" PopoverClass="mud-elevation-25">
+                        <MudButton Size="Size.Small" Color="Color.Error" StartIcon="@Icons.Material.Outlined.Cancel" OnClick="@( () => EditTask(context))">Cancel</MudButton>
+                    </MudMenu>
+                </MudToolBar>
+
+            }
+            else
+            {
+                <MudToolBar DisableGutters="true">
+                    <MudText Typo="Typo.subtitle1"><b>@context.Name</b></MudText>
+                    <MudSpacer />
+                    <MudMenu Icon="@Icons.Material.Rounded.MoreHoriz" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" ListClass="pa-2 d-flex flex-column" PopoverClass="mud-elevation-25">
+                        <MudButton Size="Size.Small" Color="Color.Error" StartIcon="@Icons.Material.Outlined.Delete" OnClick="@( () => DeleteTask(context))">Delete Task</MudButton>
+                        <MudButton Size="Size.Small" Color="Color.Default" StartIcon="@Icons.Material.Rounded.Edit" OnClick="@( () => EditTask(context))">Rename Task</MudButton>
+                    </MudMenu>
+                </MudToolBar>
+            }
+        </MudPaper>
+    </ItemRenderer>
 </MudDropContainer>
 
 @code {
-	
+
 }

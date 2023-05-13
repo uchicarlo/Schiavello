@@ -101,7 +101,11 @@ namespace blazor_todo.Server.Services
 			try
 			{
 				using var sqlConnection = new SqliteConnection(_DbConnectionString);
-				var query = "update kanban_sections set Name=@Name where Id=@Id";
+				var query = "select * from kanban_sections where Id=@Id";
+				var prevSection = sqlConnection.QueryFirstOrDefault<KanBanSection>(query,section);
+                query = "update kanban_task_items set Status=@NewName where Status=@Name";
+                await sqlConnection.ExecuteAsync(query, new { NewName = section.Name,prevSection.Name });
+                query = "update kanban_sections set Name=@Name where Id=@Id";
 				await sqlConnection.ExecuteAsync(query, section);
 				result = new(GetKanBanSections(), GetKanbanTaskItems());
 			}

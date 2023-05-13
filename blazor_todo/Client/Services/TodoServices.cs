@@ -117,8 +117,8 @@ namespace blazor_todo.Client.Services
 			var result = new KanbanRecords(new(), new());
 			try
 			{
-				var query = @"mutation($name: String!){
-							  kanbanRecords:deleteSections(name: $name){
+				var query = @"mutation($id: Int!){
+							  kanbanRecords:deleteSections(id: $id){
 								kanbanSections{
 								id
 								name
@@ -132,7 +132,7 @@ namespace blazor_todo.Client.Services
 							 }
 							  }
 							}";
-				(var response, var errors) = await _httpClient.Query<ResponseType>(query, new { name = section.Name });
+				(var response, var errors) = await _httpClient.Query<ResponseType>(query, new { id = section.Id });
 				if (errors == null)
 				{
 					result = response.kanbanRecords;

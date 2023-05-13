@@ -22,6 +22,8 @@ namespace blazor_todo.Server.Context
 			modelBuilder.Entity<KanBanSection>().Property(x => x.Id).ValueGeneratedOnAdd();
 			modelBuilder.Entity<KanBanSection>().Ignore(x => x.NewTaskOpen);
 			modelBuilder.Entity<KanBanSection>().Ignore(x => x.NewTaskName);
+            modelBuilder.Entity<KanBanSection>().Ignore(x => x.IsEditing);
+            modelBuilder.Entity<KanbanTaskItem>().Ignore(x => x.IsEditing);
 			modelBuilder.Entity<KanbanTaskItem>().HasIndex(x => x.Status);
 		}
 	}
