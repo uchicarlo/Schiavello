@@ -1,5 +1,7 @@
 using blazor_todo.Server.Context;
 using blazor_todo.Server.Operations;
+using blazor_todo.Server.Services;
+using blazor_todo.Shared.Interface;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +12,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-builder.Services.AddTransient<ToDoContext>();
-builder.Services.AddDbContext<ToDoContext>(options => options.UseSqlite("Data Source=DB\\todo.db"), ServiceLifetime.Transient);
+builder.Services.AddScoped<ITodoServices,TodoServices>();
+builder.Services.AddDbContext<ToDoContext>(options => options.UseSqlite("Data Source=DB\\todo.db"));
 
-builder.Services.AddGraphQLServer().RegisterDbContext<ToDoContext>().AddProjections().AddFiltering().AddSorting()
+builder.Services.AddGraphQLServer().AddProjections().AddFiltering().AddSorting()
 	.AddQueryType<Query>().AddMutationType<Mutation>();
 var app = builder.Build();
 var serviceScopeFactory = (IServiceScopeFactory)app

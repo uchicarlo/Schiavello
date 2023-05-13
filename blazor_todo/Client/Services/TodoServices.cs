@@ -1,22 +1,11 @@
 ﻿using blazor_todo.Client.Utility;
 using blazor_todo.Shared;
+using blazor_todo.Shared.Interface;
 using blazor_todo.Shared.Model;
 
 namespace blazor_todo.Client.Services
 {
-	public interface ITodoServices
-	{
-		Task<ResponseType> GetKanban();
-		Task<List<KanbanTaskItem>> AddTask(KanbanTaskItem item);
-		Task<List<KanbanTaskItem>> UpdateTask(KanbanTaskItem item);
-		Task<List<KanbanTaskItem>> DeleteTask(KanbanTaskItem item);
-
-		Task<KanbanRecords> AddSection(KanBanSection section);
-		Task<KanbanRecords> UpdateSection(KanBanSection section);
-		Task<KanbanRecords> DeleteSection(KanBanSection section);
-
-
-	}
+	
 	public class TodoServices : ITodoServices
 	{
 		private readonly HttpClient _httpClient;
@@ -231,6 +220,16 @@ namespace blazor_todo.Client.Services
 				throw;
 			}
 			return result;
+		}
+
+		public List<KanBanSection> GetKanBanSections()
+		{
+			throw new NotImplementedException();
+		}
+
+		public List<KanbanTaskItem> GetKanbanTaskItems()
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

@@ -10,7 +10,7 @@ namespace blazor_todo.Shared.Model
 	{
 		public int Id { get; set; }
 		public string? Name { get; set; }
-		public bool NewTaskOpen { get; set; }
+		public bool NewTaskOpen { get; set; } = false;
 		public string? NewTaskName { get; set; }
 
 		public KanBanSection() { }
