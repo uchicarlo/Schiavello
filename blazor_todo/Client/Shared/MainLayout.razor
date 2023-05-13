@@ -15,13 +15,26 @@
     </main>
 </div>
 *@
-<MudThemeProvider />
+<MudThemeProvider @ref="_mudThemeProvider" @bind-IsDarkMode="_isDarkMode" />
 
 <MudLayout>
     <MudAppBar Elevation="1">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <MudSpacer />
-        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+        @if (_isDarkMode)
+        {
+            <MudTooltip Text="Switch to Light Theme">
+                <MudIconButton Icon="@Icons.Material.Filled.DarkMode" Color="Color.Inherit" Edge="Edge.End" OnClick="@((e) => ModeToggle())" />
+            </MudTooltip>
+        }
+        else
+        {
+            <MudTooltip Text="Switch to Dark Theme">
+                <MudIconButton Icon="@Icons.Material.Filled.LightMode" Color="Color.Inherit" Edge="Edge.End" OnClick="@((e) => ModeToggle())" />
+            </MudTooltip>
+        }
+        
+        
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
         <MudDrawerHeader>
@@ -35,9 +48,23 @@
 </MudLayout>
 @code {
     bool _drawerOpen = true;
+    private bool _isDarkMode;
+    private MudThemeProvider _mudThemeProvider;
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isDarkMode = await _mudThemeProvider.GetSystemPreference();
+            StateHasChanged();
+        }
+    }
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
+    }
+    void ModeToggle()
+    {
+        _isDarkMode = !_isDarkMode;
     }
 }

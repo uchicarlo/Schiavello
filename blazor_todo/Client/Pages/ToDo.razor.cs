@@ -1,17 +1,12 @@
-﻿using blazor_todo.Client.Services;
-using blazor_todo.Shared.Interface;
+﻿using blazor_todo.Shared.Interface;
 using blazor_todo.Shared.Model;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
-using System.ComponentModel.DataAnnotations;
-using System.Runtime.CompilerServices;
-using static MudBlazor.CategoryTypes;
-using static System.Collections.Specialized.BitVector32;
 
 namespace blazor_todo.Client.Pages
 {
-	public partial class ToDo
+    public partial class ToDo
 	{
 		[Inject] ITodoServices _todoServices { get; set; }
 		private MudDropContainer<KanbanTaskItem> _dropContainer;

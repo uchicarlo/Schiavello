@@ -2,7 +2,7 @@
 @using Microsoft.AspNetCore.Components
 @using System.ComponentModel.DataAnnotations
 @using blazor_todo.Shared.Model;
-
+<PageTitle>To Do</PageTitle>
 <MudDropContainer T="KanbanTaskItem" @ref="_dropContainer" Items="@_tasks" ItemsSelector="@((item,column) => item.Status == column)" ItemDropped="TaskUpdated" Class="d-flex flex-row">
     <ChildContent>
         @foreach (var item in _sections)
@@ -55,7 +55,7 @@
                 }
             </MudPaper>
         }
-        <MudPaper Class="pa-4" Elevation="0" Width="224px">
+        <MudPaper Class="pa-4 ma-4" Elevation="0" Width="224px">
             @if (_addSectionOpen)
             {
                 <MudPaper Elevation="0" Width="224px" Class="pa-4 d-flex flex-column mud-background-gray rounded-lg">
