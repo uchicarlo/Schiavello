@@ -9,9 +9,8 @@
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.123" />
     <PackageReference Include="HotChocolate.AspNetCore" Version="13.0.5" />
-    <PackageReference Include="HotChocolate.Data.EntityFramework" Version="13.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="7.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.5" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.5" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Context\" />
     <Folder Include="DB\" />
   </ItemGroup>
 
