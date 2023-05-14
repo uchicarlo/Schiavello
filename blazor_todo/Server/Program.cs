@@ -1,16 +1,23 @@
 using blazor_todo.Server.Operations;
 using blazor_todo.Server.Services;
+using blazor_todo.Server.Utility;
 using blazor_todo.Shared.Interface;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+AppSettingsHelper.EnableLogger();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<ITodoServices,TodoServices>();
 
-builder.Services.AddGraphQLServer().AddQueryType<Query>().AddMutationType<Mutation>();
+builder.Services.AddGraphQLServer().AddQueryType<Query>().AddMutationType<Mutation>()
+    .AddErrorFilter(error =>
+    {
+        Log.Error(Convert.ToString(error.Exception));
+        return error;
+    });
 var app = builder.Build();
 
 
